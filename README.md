@@ -48,4 +48,16 @@ ignores the first line of each processed file, which is typically the header
 line containing the column labels. If you wish to ignore more lines, please use
 the option `--skip INTEGER` (default: 1).
 
+Finally, summarizer can map the table summaries to a target tree. The command is:
+
+```bash
+summarizer --map FILENAME --tree TREEFILE --output OUTFILE
 ```
+
+This will read the newick tree from file TREEFILE (internal nodes must have numeric labels) and will 
+create branch lengths equal to the posterior mean age difference between nodes. Furthermore, it will
+add the Equal-Tail CI as attribute to inner nodes, such that the resulting tree can be viewed using
+[FigTree](http://tree.bio.ed.ac.uk/software/figtree/). The tree is saved in OUTFILE (if specified)
+or printed on screen otherwise.
+If you wish to use the median age instead of mean ages, supply the argument `--median`. If you wish
+to use the 95% HPD CI instead of Equal-tail CI, supply the argument `--hpdci`.
