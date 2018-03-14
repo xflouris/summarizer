@@ -31,17 +31,27 @@ CFLAGS = -g -O3 -D_GNU_SOURCE $(WARN)
 LINKFLAGS=$(PROFILING)
 LIBS=-lm
 
+BISON = bison
+FLEX = flex
+
 PROG=summarizer
 
 all: $(PROG)
 
-OBJS=summarizer.o summary.o util.o arch.o combine.o parse.o summaryfull.o
+OBJS=summarizer.o summary.o util.o arch.o combine.o parse.o summaryfull.o \
+     parse_stree.o lex_stree.o map.o stree.o
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $+ $(LIBS) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+parse_%.c: parse_%.y
+	$(BISON) -p $*_ -d -o $@ $<
+
+lex_%.c: lex_%.l
+	$(FLEX) -P $*_ -o $@ $<
 
 clean:
 	rm -f *~ $(OBJS) gmon.out $(PROG)

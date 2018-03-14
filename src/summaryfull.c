@@ -215,6 +215,7 @@ static void print_summary(long index,
   FILE * fp_out;
 
   double * mean = (double *)xmalloc((size_t)col_count * sizeof(double));
+  double * medianarray = (double *)xmalloc((size_t)col_count * sizeof(double));
   double * hpd025 = (double *)xmalloc((size_t)col_count * sizeof(double));
   double * hpd975 = (double *)xmalloc((size_t)col_count * sizeof(double));
   #ifdef COMPUTE_ESS
@@ -299,6 +300,7 @@ static void print_summary(long index,
     }
 
     fprintf(fp_out, "  %f", median);
+    medianarray[i] = median;
   }
   fprintf(fp_out, "\n");
 
@@ -400,10 +402,11 @@ static void print_summary(long index,
   free(s);
 
   /* table-like summary */
-  fprintf(fp_out, "Posterior mean (95%% Equal-tail CI) (95%% HPD CI) HPD-CI-width\n");
+  fprintf(fp_out, "Posterior median mean (95%% Equal-tail CI) (95%% HPD CI) HPD-CI-width\n");
   for (i = 0; i < col_count; ++i)
   {
     fprintf(fp_out, "%-15s ", labels[i+1]);
+    fprintf(fp_out, "%f ",medianarray[i]);
     fprintf(fp_out, "%f ",mean[i]);
     fprintf(fp_out, "(%f, %f) ", matrix[i][start+(long)(records*.025)],
                                  matrix[i][start+(long)(records*.975)]);
@@ -412,6 +415,7 @@ static void print_summary(long index,
   }
 
   free(mean);
+  free(medianarray);
   free(hpd025);
   free(hpd975);
   #ifdef COMPUTE_ESS
@@ -445,15 +449,10 @@ void cmd_summary_full()
 
   dataset_records_count = (long *)xcalloc(dataset_count,sizeof(long));
   long total_records_count = countindexrecords(dataset_records_count);
-  printf("Total: %ld\n", total_records_count);
-  printf("opt_samples = %ld\n", opt_samples);
 
   if (opt_samples-opt_skipcount != total_records_count)
     fatal("Number of records in %s does not match with index file %s",
           opt_summarize, opt_indexfile);
-  printf("Datasets and counts:\n");
-  for (i = 0; i < dataset_count; ++i)
-    printf("  %ld\n", dataset_records_count[i]);
 
   /* skip header */
   opt_samples -= 1;
@@ -517,7 +516,7 @@ void cmd_summary_full()
 
     for (i = 0; i < col_count; ++i)
     {
-      count = get_double(p,&x);
+      count = get_double(p,&x,NULL);
       if (!count) goto l_unwind;
 
       p += count;
@@ -556,6 +555,9 @@ l_unwind:
   for (i = 0; i < col_count+1; ++i)
     free(labels[i]);
   free(labels);
+
+  if (dataset_records_count)
+    free(dataset_records_count);
 
   for (i = 0; i < col_count; ++i)
     free(matrix[i]);

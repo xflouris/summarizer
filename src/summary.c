@@ -223,6 +223,7 @@ void cmd_summary()
     matrix[i] = (double *)xmalloc((size_t)opt_samples * sizeof(double));
 
   double * mean = (double *)xmalloc((size_t)col_count * sizeof(double));
+  double * medianarray = (double *)xmalloc((size_t)col_count * sizeof(double));
   double * hpd025 = (double *)xmalloc((size_t)col_count * sizeof(double));
   double * hpd975 = (double *)xmalloc((size_t)col_count * sizeof(double));
   #ifdef COMPUTE_ESS
@@ -250,7 +251,7 @@ void cmd_summary()
 
     for (i = 0; i < col_count; ++i)
     {
-      count = get_double(p,&x);
+      count = get_double(p,&x,NULL);
       if (!count) goto l_unwind;
 
       p += count;
@@ -316,6 +317,7 @@ void cmd_summary()
     }
 
     fprintf(fp_out, "  %f", median);
+    medianarray[i] = median;
   }
   fprintf(fp_out, "\n");
 
@@ -403,10 +405,11 @@ void cmd_summary()
   #endif
 
   /* table-like summary */
-  fprintf(fp_out, "\n\nPosterior mean (95%% Equal-tail CI) (95%% HPD CI) HPD-CI-width\n\n");
+  fprintf(fp_out, "\n\nPosterior median mean (95%% Equal-tail CI) (95%% HPD CI) HPD-CI-width\n\n");
   for (i = 0; i < col_count; ++i)
   {
     fprintf(fp_out, "%-15s ", labels[i+1]);
+    fprintf(fp_out, "%f ",medianarray[i]);
     fprintf(fp_out, "%f ",mean[i]);
     fprintf(fp_out, "(%f, %f) ", matrix[i][(long)(opt_samples*.025)],
                                  matrix[i][(long)(opt_samples*.975)]);
@@ -423,6 +426,7 @@ l_unwind:
   free(matrix);
 
   free(mean);
+  free(medianarray);
   free(hpd025);
   free(hpd975);
   #ifdef COMPUTE_ESS

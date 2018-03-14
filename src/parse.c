@@ -62,12 +62,15 @@ long get_long(const char * line, long * value)
   return ws + end - start;
 }
 
-long get_double(const char * line, double * value)
+long get_double(const char * line, double * value, int * decplaces)
 {
   int ret,len=0;
   size_t ws;
   char * s = xstrdup(line);
   char * p = s;
+
+  if (decplaces)
+    *decplaces = 0;
 
   /* skip all white-space */
   ws = strspn(p, " \t\r\n");
@@ -92,6 +95,15 @@ long get_double(const char * line, double * value)
   {
     free(s);
     return 0;
+  }
+
+  if (decplaces)
+  {
+    int i;
+    for (i = 0; i < len; ++i)
+      if (start[i] == '.') break;
+
+    if (i != len) *decplaces = len - i - 1;
   }
 
   free(s);

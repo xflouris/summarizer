@@ -27,24 +27,32 @@ char * cmdline;
 
 /* options */
 long opt_help;
+long opt_map_median;
+long opt_map_hpdci;
 long opt_quiet;
 long opt_skipcount;
 long opt_version;
 char * opt_combine;
 char * opt_indexfile;
+char * opt_mapfile;
 char * opt_output;
 char * opt_summarize;
+char * opt_treefile;
 
 static struct option long_options[] =
 {
-  {"help",       no_argument,       0, 0 },  /* 0 */
-  {"version",    no_argument,       0, 0 },  /* 1 */
-  {"quiet",      no_argument,       0, 0 },  /* 2 */
-  {"summarize",  required_argument, 0, 0 },  /* 3 */
-  {"combine",    required_argument, 0, 0 },  /* 4 */
-  {"output",     required_argument, 0, 0 },  /* 5 */
-  {"skip",       required_argument, 0, 0 },  /* 6 */
-  {"index",      required_argument, 0, 0 },  /* 7 */
+  {"help",       no_argument,       0, 0 },  /*  0 */
+  {"version",    no_argument,       0, 0 },  /*  1 */
+  {"quiet",      no_argument,       0, 0 },  /*  2 */
+  {"summarize",  required_argument, 0, 0 },  /*  3 */
+  {"combine",    required_argument, 0, 0 },  /*  4 */
+  {"output",     required_argument, 0, 0 },  /*  5 */
+  {"skip",       required_argument, 0, 0 },  /*  6 */
+  {"index",      required_argument, 0, 0 },  /*  7 */
+  {"tree",       required_argument, 0, 0 },  /*  8 */
+  {"map",        required_argument, 0, 0 },  /*  9 */
+  {"median",     no_argument,       0, 0 },  /* 10 */
+  {"hpdci",      no_argument,       0, 0 },  /* 11 */
   { 0, 0, 0, 0 }
 };
 
@@ -57,14 +65,18 @@ void args_init(int argc, char ** argv)
 
   progname = argv[0];
 
-  opt_summarize = NULL;
   opt_combine = NULL;
   opt_indexfile = NULL;
+  opt_mapfile = NULL;
   opt_output = NULL;
+  opt_summarize = NULL;
+  opt_treefile = NULL;
   opt_help = 0;
-  opt_version = 0;
+  opt_map_hpdci = 0;
+  opt_map_median = 0;
   opt_quiet = 0;
   opt_skipcount = 1;
+  opt_version = 0;
 
   while ((c = getopt_long_only(argc, argv, "", long_options, &option_index)) == 0)
   {
@@ -104,6 +116,22 @@ void args_init(int argc, char ** argv)
         opt_indexfile = xstrdup(optarg);
         break;
 
+      case 8:
+        opt_treefile = xstrdup(optarg);
+        break;
+
+      case 9:
+        opt_mapfile = xstrdup(optarg);
+        break;
+
+      case 10:
+        opt_map_median = 1;
+        break;
+
+      case 11:
+        opt_map_hpdci = 1;
+        break;
+
       default:
         fatal("Internal error in option parsing");
     }
@@ -124,6 +152,8 @@ void args_init(int argc, char ** argv)
     commands++;
   if (opt_combine)
     commands++;
+  if (opt_mapfile)
+    commands++;
 
   /* if more than one independent command, fail */
   if (commands > 1)
@@ -138,10 +168,13 @@ void args_init(int argc, char ** argv)
 
 static void dealloc_switches()
 {
-  if (opt_summarize) free(opt_summarize);
   if (opt_combine) free(opt_combine);
   if (opt_indexfile) free(opt_indexfile);
+  if (opt_mapfile) free(opt_mapfile);
   if (opt_output) free(opt_output);
+  if (opt_summarize) free(opt_summarize);
+  if (opt_treefile) free(opt_treefile);
+
 }
 
 void cmd_help()
@@ -161,6 +194,10 @@ void cmd_help()
           "  --combine FILENAME    combine list of MCMC files in specified file\n"
           "  --output FILENAME     write output to specified file\n"
           "  --skip INTEGER        skip INTEGER lines from beginning of MCMC files\n"
+          "  --map FILENAME        map table summary to tree\n"
+          "  --tree FILENAME       tree file in newick format\n"
+          "  --median              use median instead of mean when mapping to tree\n"
+          "  --hpdci               use HPD CI instead of equal-tail CI when mapping to tree\n"
           "\n"
          );
 
@@ -229,6 +266,10 @@ int main (int argc, char * argv[])
   else if (opt_combine)
   {
     cmd_combine();
+  }
+  else if (opt_mapfile)
+  {
+    cmd_map();
   }
 
   dealloc_switches();

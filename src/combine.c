@@ -225,7 +225,7 @@ static long count_columns(const char * line)
 
 void cmd_combine()
 {
-  long i,j;
+  long i;
   long first = 1;
   long col_count = 0;
   long count;
@@ -303,16 +303,9 @@ void cmd_combine()
 
       for (i = 0; i < col_count; ++i)
       {
-        count = get_double(p,&x);
-        if (!count) goto l_unwind;
-
-        for (j = 0; j < count; ++j)
-          if (p[j] == '.') break;
-
         int decplaces = 0;
-        
-        if (j != count)
-          decplaces = count - 1 - j;
+        count = get_double(p,&x, &decplaces);
+        if (!count) goto l_unwind;
 
         p += count;
 
