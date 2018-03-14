@@ -28,7 +28,20 @@ summarizer --combine FILENAME --output OUTFILE
 ```
 
 where `FILENAME` is a file containing a list of files to be combined. The
-output is written in OUTFILE.
+output is written in OUTFILE. The program creates one additional file called
+OUTFILE.index, and fills it with the number of samples in each of the files to
+be combined. This file can be later passed to the `--summarize` command in the
+following way (as INDEXFILE):
+
+```bash
+summarizer --summarize FILENAME --output OUTFILE --index INDEXFILE
+```
+
+in order to create per-dataset summaries along with the combined summary. The
+individual dataset summaries are written in separate files as OUTFILE.1.txt,
+OUTFILE.table.1.txt, OUTFILE.2.txt, OUTFILE.table.2.txt, ..., OUTFILE.N.txt
+OUTFILE.table.N.txt, where **N** is the number of combined datasets. The combined
+summary is written as OUTFILE.combined.txt and OUTFILE.table.combined.txt.
 
 Please note that in both cases (`--summarize and --combine)`, summarixer
 ignores the first line of each processed file, which is typically the header
