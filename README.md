@@ -4,11 +4,23 @@
 
 ## Compilation instructions
 
-The program can be compiled using the command:
+You will need [GNU Bison](http://www.gnu.org/software/bison/) and
+[Flex](http://flex.sourceforge.net/) installed on your system.
+
+On a Debian-based Linux system, the two packages can be installed
+using the command
+
+```bash
+sudo apt-get install flex bison
+```
+
+The program can then be compiled using the command:
 
 ```bash
 make
 ```
+
+from the `src` folder.
 
 ## Running summarizer
 
@@ -54,10 +66,11 @@ Finally, summarizer can map the table summaries to a target tree. The command is
 summarizer --map FILENAME --tree TREEFILE --output OUTFILE
 ```
 
-This will read the newick tree from file TREEFILE (internal nodes must have numeric labels) and will 
-create branch lengths equal to the posterior mean age difference between nodes. Furthermore, it will
-add the Equal-Tail CI as attribute to inner nodes, such that the resulting tree can be viewed using
-[FigTree](http://tree.bio.ed.ac.uk/software/figtree/). The tree is saved in OUTFILE (if specified)
-or printed on screen otherwise.
-If you wish to use the median age instead of mean ages, supply the argument `--median`. If you wish
-to use the 95% HPD CI instead of Equal-tail CI, supply the argument `--hpdci`.
+This will read the newick tree from file TREEFILE (internal nodes must have
+numeric labels) and will create branch lengths equal to the posterior mean age
+difference between nodes. Furthermore, it will add the Equal-Tail CI as
+attribute to inner nodes, such that the resulting tree can be viewed using
+[FigTree](http://tree.bio.ed.ac.uk/software/figtree/). The tree is saved in
+OUTFILE (if specified) or printed on screen otherwise.  If you wish to use the
+median age instead of mean ages, supply the argument `--median`. If you wish to
+use the 95% HPD CI instead of Equal-tail CI, supply the argument `--hpdci`.
