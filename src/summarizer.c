@@ -31,6 +31,7 @@ long opt_quiet;
 long opt_skipcount;
 long opt_version;
 char * opt_combine;
+char * opt_indexfile;
 char * opt_output;
 char * opt_summarize;
 
@@ -43,6 +44,7 @@ static struct option long_options[] =
   {"combine",    required_argument, 0, 0 },  /* 4 */
   {"output",     required_argument, 0, 0 },  /* 5 */
   {"skip",       required_argument, 0, 0 },  /* 6 */
+  {"index",      required_argument, 0, 0 },  /* 7 */
   { 0, 0, 0, 0 }
 };
 
@@ -57,6 +59,7 @@ void args_init(int argc, char ** argv)
 
   opt_summarize = NULL;
   opt_combine = NULL;
+  opt_indexfile = NULL;
   opt_output = NULL;
   opt_help = 0;
   opt_version = 0;
@@ -97,6 +100,10 @@ void args_init(int argc, char ** argv)
           fatal("option --skip requires a positive integer or 0");
         break;
 
+      case 7:
+        opt_indexfile = xstrdup(optarg);
+        break;
+
       default:
         fatal("Internal error in option parsing");
     }
@@ -133,6 +140,7 @@ static void dealloc_switches()
 {
   if (opt_summarize) free(opt_summarize);
   if (opt_combine) free(opt_combine);
+  if (opt_indexfile) free(opt_indexfile);
   if (opt_output) free(opt_output);
 }
 
@@ -213,7 +221,10 @@ int main (int argc, char * argv[])
   }
   else if (opt_summarize)
   {
-    cmd_summary();
+    if (opt_indexfile)
+      cmd_summary_full();
+    else
+      cmd_summary();
   }
   else if (opt_combine)
   {

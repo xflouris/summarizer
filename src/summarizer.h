@@ -121,12 +121,17 @@ extern long opt_quiet;
 extern long opt_skipcount;
 extern long opt_version;
 extern char * opt_combine;
+extern char * opt_indexfile;
 extern char * opt_output;
 extern char * opt_summarize;
 
 /* functions in summary.c */
 
 void cmd_summary(void);
+
+/* functions in summaryfull.c */
+
+void cmd_summary_full(void);
 
 /* functions in combine.c */
 
@@ -135,10 +140,11 @@ void cmd_combine(void);
 /* functions in util.c */
 
 #ifdef _MSC_VER
-__declspec(noreturn) void fatal(const char * format, ...);
 int xasprintf(char ** strp, const char * fmt, ...);
+__declspec(noreturn) void fatal(const char * format, ...);
 #else
 void fatal(const char * format, ...) __attribute__ ((noreturn));
+#define xasprintf asprintf
 #endif
 void progress_init(const char * prompt, unsigned long size);
 void progress_update(unsigned long progress);

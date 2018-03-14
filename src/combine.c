@@ -225,16 +225,18 @@ static long count_columns(const char * line)
 
 void cmd_combine()
 {
-  long i;
+  long i,j;
   long first = 1;
   long col_count = 0;
   long count;
   long sample_num;
   long line_count = 1;
+  long file_line_count = 0;
   char * line;
   FILE * fp_list;
   FILE * fp_in;
   FILE * fp_out;
+  FILE * fp_index;
 
   if (opt_skipcount != 1)
     fatal("Option --skip must be set to 1 when --combine");
@@ -246,8 +248,14 @@ void cmd_combine()
 
   fp_out = xopen(opt_output,"w");
 
+  char * s = NULL;
+  xasprintf(&s, "%s.index", opt_output);
+  fp_index = xopen(s,"w");
+  free(s);
+
   while ((line=getnextline(fp_list)))
   {
+    file_line_count = 0;
     char * filename = xstrdup(line);
     for (i = 0; i < strlen(filename); ++i)
       if (filename[i] == '\r' || filename[i] == '\n')
@@ -298,18 +306,31 @@ void cmd_combine()
         count = get_double(p,&x);
         if (!count) goto l_unwind;
 
+        for (j = 0; j < count; ++j)
+          if (p[j] == '.') break;
+
+        int decplaces = 0;
+        
+        if (j != count)
+          decplaces = count - 1 - j;
+
         p += count;
 
-        fprintf(fp_out, "\t%f", x);
+        fprintf(fp_out, "\t%.*f", decplaces,x);
       }
 
       line_count++;
+      file_line_count++;
       fprintf(fp_out, "\n");
     }
 
     free(filename);
     fclose(fp_in);
+
+    fprintf(fp_index,"%ld\n",file_line_count);
   }
 l_unwind:
   fclose(fp_list);    
+  fclose(fp_out);
+  fclose(fp_index);
 }

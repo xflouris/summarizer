@@ -164,7 +164,7 @@ void pll_aligned_free(void * ptr)
 }
 
 #ifdef _MSC_VER
-static int vasprintf(char **strp, const char *fmt, va_list ap)
+static int xvasprintf(char **strp, const char *fmt, va_list ap)
 {
   int len = _vscprintf(fmt, ap);
   if (len == -1) return -1;
@@ -189,7 +189,7 @@ int xasprintf(char ** strp, const char * fmt, ...)
 {
   va_list ap;
   va_start(ap,fmt);
-  int r = vasprintf(strp,fmt,ap);
+  int r = xvasprintf(strp,fmt,ap);
   va_end(ap);
   return r;
 }

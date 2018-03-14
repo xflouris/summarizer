@@ -27,7 +27,7 @@ WARN=-Wall -Wsign-compare
 ifndef CC
 CC = gcc
 endif
-CFLAGS = -g -O3 $(WARN)
+CFLAGS = -g -O3 -D_GNU_SOURCE $(WARN)
 LINKFLAGS=$(PROFILING)
 LIBS=-lm
 
@@ -35,7 +35,7 @@ PROG=summarizer
 
 all: $(PROG)
 
-OBJS=summarizer.o summary.o util.o arch.o combine.o parse.o
+OBJS=summarizer.o summary.o util.o arch.o combine.o parse.o summaryfull.o
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $+ $(LIBS) $(LDFLAGS)
